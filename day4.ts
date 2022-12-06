@@ -22,9 +22,9 @@ async function processLineByLine(in_filename: string) {
                 const bl = parseInt(bls);
                 const br = parseInt(brs);
                 // console.log([al, ar, bl, br]);
-                if (al <= bl && ar >= br) {
+                if (al <= bl && ar >= bl) {
                     score++;
-                } else if (bl <= al && br >= ar) {
+                } else if (bl <= al && br >= al) {
                     score++;
                 }
             }
