@@ -29,10 +29,11 @@ async function processLineByLine(in_filename: string) {
             // console.log(result);
             if (result !== null) {
                 const [, num, from, to] = result;
-                for (let i = 0; i < parseInt(num); i++) {
-                    const block = stacks[parseInt(from)].pop();
-                    stacks[parseInt(to)].push(block!);
-                }
+                const size = parseInt(num);
+                let fromStack = stacks[parseInt(from)];
+                let toStack = stacks[parseInt(to)];
+                let block = fromStack.splice(fromStack.length - size, fromStack.length);
+                toStack.splice(toStack.length, 0, ...block);
             }
         }
         stacks.shift(); // remove dummy stack 0
