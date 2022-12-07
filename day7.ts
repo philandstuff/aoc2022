@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as readline from 'node:readline/promises';
-import { Transform } from 'node:stream';
+
+const FS_CAPACITY = 70000000;
+const NEEDED_SPACE = 30000000;
 
 const cd = /\$ cd (.*)/;
 const ls = /\$ ls/;
@@ -79,12 +81,19 @@ async function processLineByLine(in_filename: string) {
             }
         }
         let total = 0;
+        let smallest = Infinity;
+        const freeSpace = FS_CAPACITY - root[totalSize];
+        console.log('current usage: %d', root[totalSize]);
+        console.log('free space: %d', freeSpace);
         for await (let dir of traverseDirs(root)) {
-            if (dir[totalSize] <= 100000) {
-                total += dir[totalSize];
+            if (dir[totalSize] + freeSpace >= NEEDED_SPACE) {
+                if (dir[totalSize] < smallest){
+                    smallest = dir[totalSize];
+                }
             }
         }
-        console.log(total);
+        console.log(smallest);
+        console.log(smallest + freeSpace);
     } catch (err) {
         console.error(err);
     }
