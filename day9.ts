@@ -2,53 +2,65 @@ import fs from 'fs';
 
 const movePattern = /(\w) (\d+)/
 
+type knot = {
+    x: number;
+    y: number;
+}
+
 function simulateRope(instructions: string) {
-    let headX = 0, headY = 0, tailX = 0, tailY = 0;
-    let tailvisited: Record<number, Record<number, boolean>>= 
-    {0: {0: true}};
+    let rope: knot[] = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
+    let tailvisited: Record<number, Record<number, boolean>> =
+        { 0: { 0: true } };
 
     function moveHead(dir: string) {
         switch (dir) {
-            case 'R': headX++; break;
-            case 'L': headX--; break;
-            case 'U': headY++; break;
-            case 'D': headY--; break;
+            case 'R': rope[0].x++; break;
+            case 'L': rope[0].x--; break;
+            case 'U': rope[0].y++; break;
+            case 'D': rope[0].y--; break;
         }
     }
 
-    function moveTail() {
+    function moveKnot(i: number) {
         // cases:
         // - move diagonally, when head and tail on distinct coords
         // - move laterally, when head and tail share a single coord
         // - don't move, when head and tail touching
-        if ((Math.abs(headX - tailX) < 2) && (Math.abs(headY - tailY) < 2)) {
+        if ((Math.abs(rope[i - 1].x - rope[i].x) < 2) && (Math.abs(rope[i - 1].y - rope[i].y) < 2)) {
             return;
         }
-        if (headY > tailY) {
-            tailY++;
-        } else if (headY < tailY) {
-            tailY--;
+        if (rope[i - 1].y > rope[i].y) {
+            rope[i].y++;
+        } else if (rope[i - 1].y < rope[i].y) {
+            rope[i].y--;
         }
-        if (headX > tailX) {
-            tailX++;
-        } else if (headX < tailX) {
-            tailX--;
+        if (rope[i - 1].x > rope[i].x) {
+            rope[i].x++;
+        } else if (rope[i - 1].x < rope[i].x) {
+            rope[i].x--;
+        }
+    }
+
+    function moveRope(dir: string) {
+        moveHead(dir);
+        for (let i = 1; i < rope.length; i++) {
+            moveKnot(i);
         }
         // mark new location as visited
-        if (tailvisited[tailX] == null) {
-            tailvisited[tailX] = {};    
+        const tail = rope.length-1;
+        if (tailvisited[rope[tail].x] == null) {
+            tailvisited[rope[tail].x] = {};
         }
-        tailvisited[tailX][tailY] = true;
+        tailvisited[rope[tail].x][rope[tail].y] = true;
     }
 
     for (let move of instructions.split('\n')) {
         let result;
-        if (move.trim() == '') {continue;}
+        if (move.trim() == '') { continue; }
         if ((result = movePattern.exec(move)) !== null) {
             const [, dir, dist] = result;
             for (let i = 0; i < parseInt(dist); i++) {
-                moveHead(dir);
-                moveTail();
+                moveRope(dir);
             }
         } else {
             throw new Error("unknown move: " + move);
@@ -71,7 +83,17 @@ D 1
 L 5
 R 2`;
 
+const example2 = `R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20`;
+
 simulateRope(example);
+simulateRope(example2);
 const input = fs.readFileSync('day9-input.txt');
 if (input !== null) {
     simulateRope(input.toString());
