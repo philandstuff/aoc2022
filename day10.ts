@@ -67,6 +67,25 @@ class Processor {
         }
     }
 
+    renderLine() {
+        let line = '';
+        for (let i = 0; i < 40; i++) {
+            if (Math.abs(this.X - i) <= 1) {
+                line += '#';
+            } else {
+                line += '.';
+            }
+            this.tick();
+        }
+        console.log(line);
+    }
+
+    renderScreen() {
+        for (let i = 0; i < 6; i++) {
+            this.renderLine();
+        }
+    }
+
     signalStrength() { return this.cycle * this.X; }
 }
 
@@ -239,8 +258,16 @@ noop
 noop`
 
 // execute(example1);
-execute(example2, [20, 60, 100, 140, 180, 220], 220);
+// execute(example2, [20, 60, 100, 140, 180, 220], 220);
+
+const p = new Processor();
+p.load(example2);
+p.renderScreen();
+
 const input = fs.readFileSync('day10-input.txt');
 if (input !== null) {
-    execute(input.toString().trim(), [20, 60, 100, 140, 180, 220], 220);
+    const p = new Processor();
+    p.load(input.toString().trim());
+    p.renderScreen();
+    // execute(input.toString().trim(), [20, 60, 100, 140, 180, 220], 220);
 }
