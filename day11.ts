@@ -1,39 +1,42 @@
 class Monkey {
-    items: number[]
-    operation: (n: number) => number
-    test: (n: number) => boolean
+    items: bigint[]
+    operation: (n: bigint) => bigint
+    testMod: bigint
     ifTrue: number
     ifFalse: number
     handled: number
 
-    constructor(items: number[], operation: (n: number) => number, test: (n: number) => boolean, ifTrue: number, ifFalse: number) {
+    constructor(items: bigint[], operation: (n: bigint) => bigint, testMod: bigint, ifTrue: number, ifFalse: number) {
         this.items = items;
         this.operation = operation;
-        this.test = test;
+        this.testMod = testMod;
         this.ifTrue = ifTrue;
         this.ifFalse = ifFalse;
         this.handled = 0;
+    }
+
+    test(n: bigint) {
+        return n % this.testMod == 0n;
     }
 }
 
 class Day11 {
     monkeys: Monkey[]
+    worryMod: bigint
 
     constructor(monkeys: Monkey[]) {
         this.monkeys = monkeys;
+        this.worryMod = monkeys.map(m => m.testMod).reduce((a,b) => a*b);
     }
 
     tick() {
         for (const monkey of this.monkeys) {
             for (const item of monkey.items) {
                 let worry = monkey.operation(item);
-                worry = Math.floor(worry / 3);
+                worry = worry % this.worryMod;
                 monkey.handled++;
-                if (monkey.test(worry)) {
-                    this.monkeys[monkey.ifTrue].items.push(worry);
-                } else {
-                    this.monkeys[monkey.ifFalse].items.push(worry);
-                }
+                const index = monkey.test(worry) ? monkey.ifTrue : monkey.ifFalse;
+                this.monkeys[index].items.push(worry);
             }
             monkey.items = [];
         }
@@ -47,31 +50,30 @@ class Day11 {
 }
 
 const example1 = new Day11([
-    new Monkey([79, 98], n => n * 19, n => n % 23 == 0, 2, 3),
-    new Monkey([54, 65, 75, 74], n => n + 6, n => n % 19 == 0, 2, 0),
-    new Monkey([79, 60, 97], n => n * n, n => n % 13 == 0, 1, 3),
-    new Monkey([74], n => n + 3, n => n % 17 == 0, 0, 1),
+    new Monkey([79n, 98n], n => n * 19n,  23n, 2, 3),
+    new Monkey([54n, 65n, 75n, 74n], n => n + 6n, 19n, 2, 0),
+    new Monkey([79n, 60n, 97n], n => n * n,  13n, 1, 3),
+    new Monkey([74n], n => n + 3n,  17n, 0, 1),
 
 ])
 
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 10000; i++) {
     example1.tick();
 }
-console.log(example1.monkeys);
 console.log(example1.monkeyBusiness());
 
 const input = new Day11([
-    new Monkey([98, 89, 52], n => n * 2, n => n % 5 == 0, 6, 1),
-    new Monkey([57, 95, 80, 92, 57, 78], n => n * 13, n => n % 2 == 0, 2, 6),
-    new Monkey([82, 74, 97, 75, 51, 92, 83], n => n + 5, n => n % 19 == 0, 7, 5),
-    new Monkey([97, 88, 51, 68, 76], n => n + 6, n => n % 7 == 0, 0, 4),
-    new Monkey([63], n => n + 1, n => n % 17 == 0, 0, 1),
-    new Monkey([94, 91, 51, 63], n => n + 4, n => n % 13 == 0, 4, 3),
-    new Monkey([61, 54, 94, 71, 74, 68, 98, 83], n => n + 2, n => n % 3 == 0, 2, 7),
-    new Monkey([90, 56], n => n * n, n => n % 11 == 0, 3, 5),
+    new Monkey([98, 89, 52].map(BigInt), n => n * 2n,  5n , 6, 1),
+    new Monkey([57, 95, 80, 92, 57, 78].map(BigInt), n => n * 13n,  2n, 2, 6),
+    new Monkey([82, 74, 97, 75, 51, 92, 83].map(BigInt), n => n + 5n,  19n, 7, 5),
+    new Monkey([97, 88, 51, 68, 76].map(BigInt), n => n + 6n,  7n, 0, 4),
+    new Monkey([63].map(BigInt), n => n + 1n,  17n, 0, 1),
+    new Monkey([94, 91, 51, 63].map(BigInt), n => n + 4n,  13n, 4, 3),
+    new Monkey([61, 54, 94, 71, 74, 68, 98, 83].map(BigInt), n => n + 2n,  3n, 2, 7),
+    new Monkey([90, 56].map(BigInt), n => n * n,  11n, 3, 5),
 ])
 
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 10000; i++) {
     input.tick();
 }
 console.log(input.monkeyBusiness());
