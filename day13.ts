@@ -8,7 +8,7 @@ function comparePackets(a: Packet, b: Packet): number {
     }
     a = typeof a == 'number' ? [a] : a;
     b = typeof b == 'number' ? [b] : b;
-    
+
     for (let i = 0; i < a.length; i++) {
         if (i >= b.length) {
             return 1;
@@ -33,11 +33,29 @@ function day13(input: string): number {
         const first = JSON.parse(pair[0]);
         const second = JSON.parse(pair[1]);
         if (comparePackets(first, second) < 0) {
-            sum += i+1;
+            sum += i + 1;
         }
     }
     console.log(sum);
     return sum;
+}
+
+function day13p2(input: string) {
+    const packetStrs = input.split(/\n+/);
+    const packets: Array<Packet> = packetStrs.map(str => JSON.parse(str));
+    packets.push([[2]]);
+    packets.push([[6]]);
+    packets.sort(comparePackets);
+    console.log(packets);
+    let prod = 1;
+    for (let i = 0; i < packets.length; i++) {
+        const packet = packets[i];
+        if (comparePackets(packet, [[2]]) == 0
+            || comparePackets(packet, [[6]]) == 0) {
+            prod *= (i + 1);
+        }
+    }
+    console.log(prod);
 }
 
 const example =
@@ -67,5 +85,5 @@ const example =
 
 const input = fs.readFileSync('day13-input.txt').toString().trim();
 
-day13(example);
-day13(input);
+day13p2(example);
+day13p2(input);
